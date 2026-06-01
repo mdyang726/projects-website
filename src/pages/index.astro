@@ -1,0 +1,249 @@
+---
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Marcus · Summer 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="wrapper">
+      <nav>
+  <span class="nav-name">
+    Marcus David Yang | Aerospace Engineer @ UIUC
+  </span>
+
+  <div class="nav-links">
+    <a href="#projects">projects</a>
+    <a href="#skills">skills</a>
+  </div>
+</nav>
+
+      <section class="hero">
+        <p class="hero-label">Summer 2026 · Build log</p>
+        <h1>Building things,<br />documenting everything.</h1>
+        <p class="hero-desc">A running log of projects I'm working on this summer — software, hardware, and design. Updated as I learn.</p>
+      </section>
+
+      <p class="section-label" id="projects">Projects</p>
+      <div class="projects">
+		<a href="/projects/projects-site" class="project-card-link">
+  <div class="project-card">
+    <span class="tag software">software</span>
+    <h3>Projects</h3>
+    <p>Built with Astro. Minimal, fast, and easy to update.</p>
+    <p class="project-date">June 2026</p>
+  </div>
+</a>
+
+        <div class="project-card">
+          <span class="tag hardware">hardware</span>
+          <h3>Project two</h3>
+          <p>Description coming soon — currently in progress.</p>
+          <p class="project-date">July 2026</p>
+        </div>
+      </div>
+
+      <p class="section-label" id="skills">Skills I'm developing</p>
+      <div class="skills">
+        <span class="skill-pill">Siemens NX</span>
+        <span class="skill-pill">ANSYS Fluent</span>
+        <span class="skill-pill">ANSYS Mechanical</span>
+        <span class="skill-pill">C++</span>
+        <span class="skill-pill">Python</span>
+        <span class="skill-pill">MatLab Simulink</span>
+      </div>
+
+      <footer>
+        <p>Marcus Yang · summer 2026</p>
+		<a href="https://www.linkedin.com/in/marcusdyang" target="_blank">LinkedIn ↗</a>
+        <a href="https://github.com" target="_blank">github ↗</a>
+      </footer>
+    </div>
+
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: 'DM Sans', sans-serif;
+        background: #fafaf9;
+        color: #1a1a18;
+      }
+
+      #wrapper {
+        width: 100%;
+        max-width: 860px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 80px;
+        padding-right: 80px;
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2.5rem;
+        padding-bottom: 2.5rem;
+        border-bottom: 1px solid #e0dfd8;
+        margin-bottom: 4rem;
+      }
+
+      .nav-name {
+        font-family: 'DM Mono', monospace;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-links a {
+        font-size: 14px;
+        color: #888780;
+        text-decoration: none;
+      }
+
+      .nav-links a:hover { color: #1a1a18; }
+
+      .hero {
+        margin-bottom: 5rem;
+      }
+
+      .hero-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #b4b2a9;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 1.25rem;
+      }
+
+      .hero h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 44px;
+        font-weight: 400;
+        line-height: 1.15;
+        margin-bottom: 1.5rem;
+      }
+
+      .hero-desc {
+        font-size: 16px;
+        color: #5f5e5a;
+        line-height: 1.7;
+        max-width: 480px;
+      }
+
+      .section-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #b4b2a9;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 1.25rem;
+      }
+
+      .projects {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: #e0dfd8;
+        border: 1px solid #e0dfd8;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 4rem;
+      }
+
+      .project-card {
+        background: #fafaf9;
+        padding: 1.75rem 2rem;
+      }
+
+      .project-card:hover { background: #f1efea; }
+
+	  .project-card-link {         /* ← add this */
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+      .tag {
+        display: inline-block;
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        padding: 3px 8px;
+        border-radius: 4px;
+        margin-bottom: 0.9rem;
+      }
+
+      .tag.software { background: #E6F1FB; color: #185FA5; }
+      .tag.hardware { background: #E1F5EE; color: #0F6E56; }
+      .tag.design   { background: #FBEAF0; color: #993556; }
+
+      .project-card h3 {
+        font-size: 15px;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .project-card p {
+        font-size: 13px;
+        color: #5f5e5a;
+        line-height: 1.6;
+      }
+
+      .project-date {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #b4b2a9;
+        margin-top: 1rem;
+      }
+
+      .skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 5rem;
+      }
+
+      .skill-pill {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        padding: 6px 14px;
+        border: 1px solid #d3d1c7;
+        border-radius: 100px;
+        color: #5f5e5a;
+      }
+
+      footer {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+        border-top: 1px solid #e0dfd8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      footer p {
+        font-size: 13px;
+        color: #b4b2a9;
+        font-family: 'DM Mono', monospace;
+      }
+
+      footer a {
+        font-size: 13px;
+        color: #b4b2a9;
+        font-family: 'DM Mono', monospace;
+        text-decoration: none;
+      }
+
+      footer a:hover { color: #1a1a18; }
+    </style>
+  </body>
+</html>
