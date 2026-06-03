@@ -1,7 +1,5 @@
 ---
-
 ---
-
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -32,12 +30,12 @@
                     Designed and analyzed a converging-diverging (de Laval) nozzle using
                     Siemens NX, SpaceClaim, ANSYS Meshing, and ANSYS Fluent.
                 </p>
-                <button class="data-btn" onclick="openModal()">
+                <button id="open-modal-btn" class="data-btn">
                     View simulation data ↗
                 </button>
             </section>
 
-            <!-- ── Meshing ── -->
+            <!-- Meshing -->
             <p class="section-label">Meshing</p>
             <div class="content-block">
                 <p>
@@ -51,7 +49,7 @@
                 </div>
             </div>
 
-            <!-- ── Velocity ── -->
+            <!-- Velocity -->
             <p class="section-label">Velocity</p>
             <div class="content-block">
                 <p>
@@ -61,7 +59,7 @@
                     exit velocities above 590 m/s.
                 </p>
                 <div class="image-single">
-                    <img src="/images/velocity-contour.png" alt="Velocity magnitude mid-plane cross-section" />
+                    <img src="/images/velocity-magnitude.png" alt="Velocity magnitude mid-plane cross-section" />
                     <p class="img-caption">Velocity magnitude — mid-plane cross-section. Flow accelerates from ~60 m/s (blue) in the converging section through the throat, reaching >590 m/s (red) in the diverging section. A thin boundary layer is visible along the diverging wall.</p>
                 </div>
                 <div class="image-row two-col" style="margin-top: 1rem;">
@@ -76,7 +74,7 @@
                 </div>
             </div>
 
-            <!-- ── Mach Number ── -->
+            <!-- Mach Number -->
             <p class="section-label">Mach Number</p>
             <div class="content-block">
                 <p>
@@ -92,12 +90,12 @@
                     </figure>
                     <figure>
                         <img src="/images/mach-vs-position.png" alt="Mach number vs axial position" />
-                        <figcaption>Mach number vs. axial position — each line traces a streamline through plane-3. The fan of lines reflects radial variation across the cross-section. Throat at ~0.40 m; M = 1 crossed cleanly before diverging to ~2.5 at exit.</figcaption>
+                        <figcaption>Mach number vs. axial position — each line traces a streamline through plane-3. Throat at ~0.40 m; M = 1 crossed cleanly before diverging to ~2.5 at exit.</figcaption>
                     </figure>
                 </div>
             </div>
 
-            <!-- ── Pressure ── -->
+            <!-- Pressure -->
             <p class="section-label">Pressure</p>
             <div class="content-block">
                 <p>
@@ -112,12 +110,12 @@
                 <div style="margin-top: 1rem;">
                     <div class="image-single">
                         <img src="/images/pressure-vs-position.png" alt="Static pressure vs axial position" />
-                        <p class="img-caption">Static pressure vs. axial position — pressure falls steeply at the throat (~0.30–0.45 m) and levels off in the supersonic diverging region. Spread in the bundle of lines captures radial non-uniformity near the throat. Note: gauge pressure goes negative downstream of the throat relative to the outlet back-pressure.</p>
+                        <p class="img-caption">Static pressure vs. axial position — pressure falls steeply at the throat (~0.30–0.45 m) and levels off in the supersonic diverging region. Note: gauge pressure goes negative downstream of the throat relative to the outlet back-pressure.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- ── Temperature ── -->
+            <!-- Temperature -->
             <p class="section-label">Temperature</p>
             <div class="content-block">
                 <p>
@@ -129,7 +127,7 @@
                 <div class="image-row two-col">
                     <figure>
                         <img src="/images/temp-cross-section.png" alt="Total temperature mid-plane cross-section" />
-                        <figcaption>Total temperature — mid-plane cross-section. Variation is narrow (298–303 K), with a warm band at the throat boundary layer. Confirming near-isentropic conditions in the core flow.</figcaption>
+                        <figcaption>Total temperature — mid-plane cross-section. Variation is narrow (298–303 K), with a warm band at the throat boundary layer, confirming near-isentropic conditions in the core flow.</figcaption>
                     </figure>
                     <figure>
                         <img src="/images/temp-walls.png" alt="Total temperature on nozzle walls" />
@@ -145,22 +143,20 @@
             </footer>
         </div>
 
-        <!-- ── Data Modal ── -->
-        <div id="modal-backdrop" onclick="closeModal()"></div>
+        <!-- Data Modal -->
+        <div id="modal-backdrop"></div>
         <div id="data-modal" role="dialog" aria-modal="true" aria-label="Simulation Data">
             <div class="modal-header">
                 <div>
                     <p class="modal-label">ANSYS Fluent · Surface Integral Reports</p>
                     <h2 class="modal-title">Simulation Data</h2>
                 </div>
-                <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+                <button id="close-modal-btn" class="modal-close" aria-label="Close">✕</button>
             </div>
-
             <p class="modal-desc">
                 Area-weighted averages exported directly from ANSYS Fluent post-processing.
                 All values are steady-state results from the density-based compressible solver.
             </p>
-
             <div class="data-table-wrap">
                 <table class="data-table">
                     <thead>
@@ -218,7 +214,6 @@
                     </tbody>
                 </table>
             </div>
-
             <div class="modal-notes">
                 <p class="modal-notes-label">Notes</p>
                 <ul>
@@ -247,7 +242,6 @@
                 padding-right: 80px;
             }
 
-            /* ── Nav ── */
             nav {
                 display: flex;
                 justify-content: space-between;
@@ -287,7 +281,6 @@
 
             .back-link:hover { color: #1a1a18; }
 
-            /* ── Hero ── */
             .hero { margin-bottom: 5rem; }
 
             .hero-label {
@@ -340,7 +333,6 @@
                 color: #fafaf9;
             }
 
-            /* ── Section label ── */
             .section-label {
                 font-family: 'DM Mono', monospace;
                 font-size: 11px;
@@ -350,7 +342,6 @@
                 margin-bottom: 1.25rem;
             }
 
-            /* ── Content blocks ── */
             .content-block { margin-bottom: 4.5rem; }
 
             .content-block > p {
@@ -361,7 +352,6 @@
                 margin-bottom: 1.5rem;
             }
 
-            /* ── Single image ── */
             .image-single {
                 border: 1px solid #e0dfd8;
                 border-radius: 12px;
@@ -383,12 +373,11 @@
                 border-top: 1px solid #e0dfd8;
             }
 
-            /* ── Image rows ── */
             .image-row {
                 border: 1px solid #e0dfd8;
                 border-radius: 12px;
                 overflow: hidden;
-                background: #e0dfd8; /* gap colour */
+                background: #e0dfd8;
             }
 
             .image-row.two-col {
@@ -419,7 +408,6 @@
                 border-top: 1px solid #e0dfd8;
             }
 
-            /* ── Footer ── */
             footer {
                 padding-top: 2rem;
                 padding-bottom: 3rem;
@@ -438,7 +426,6 @@
 
             footer a:hover { color: #1a1a18; }
 
-            /* ── Modal backdrop ── */
             #modal-backdrop {
                 display: none;
                 position: fixed;
@@ -448,7 +435,8 @@
                 z-index: 100;
             }
 
-            /* ── Modal drawer ── */
+            #modal-backdrop.open { display: block; }
+
             #data-modal {
                 position: fixed;
                 top: 0;
@@ -465,7 +453,6 @@
             }
 
             #data-modal.open { transform: translateX(0); }
-            #modal-backdrop.open { display: block; }
 
             .modal-header {
                 display: flex;
@@ -516,7 +503,6 @@
                 border-bottom: 1px solid #e0dfd8;
             }
 
-            /* ── Data table ── */
             .data-table-wrap {
                 overflow-x: auto;
                 margin-bottom: 2rem;
@@ -584,7 +570,6 @@
             .surface-pill.inlet  { background: #E1F5EE; color: #0F6E56; }
             .surface-pill.wall   { background: #FDF3E3; color: #9A5B10; }
 
-            /* ── Modal notes ── */
             .modal-notes {
                 border-top: 1px solid #e0dfd8;
                 padding-top: 1.5rem;
@@ -624,23 +609,31 @@
             .modal-notes strong { color: #1a1a18; font-weight: 500; }
         </style>
 
-        <script is:inline>
+        <script>
+            const modal = document.getElementById('data-modal');
+            const backdrop = document.getElementById('modal-backdrop');
+            const openBtn = document.getElementById('open-modal-btn');
+            const closeBtn = document.getElementById('close-modal-btn');
+
             function openModal() {
-                document.getElementById('data-modal').classList.add('open');
-                document.getElementById('modal-backdrop').classList.add('open');
+                modal.classList.add('open');
+                backdrop.classList.add('open');
                 document.body.style.overflow = 'hidden';
             }
 
             function closeModal() {
-                document.getElementById('data-modal').classList.remove('open');
-                document.getElementById('modal-backdrop').classList.remove('open');
+                modal.classList.remove('open');
+                backdrop.classList.remove('open');
                 document.body.style.overflow = '';
             }
 
-            document.addEventListener('keydown', function(e) {
+            openBtn.addEventListener('click', openModal);
+            closeBtn.addEventListener('click', closeModal);
+            backdrop.addEventListener('click', closeModal);
+
+            document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeModal();
             });
-        <script is:inline>
-
+        </script>
     </body>
 </html>
