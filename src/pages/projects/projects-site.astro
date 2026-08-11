@@ -1,0 +1,255 @@
+---
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>This Portfolio Site · Marcus</title>
+    <meta name="description" content="How this portfolio site is built: a single-file-per-page Astro site with inline CSS, deployed on Vercel." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="wrapper">
+
+      <nav>
+        <span class="nav-name">Marcus David Yang | Aerospace Engineer @ UIUC</span>
+        <div class="nav-links">
+          <a href="/">home</a>
+        </div>
+      </nav>
+
+      <a href="/#projects" class="back-link">← projects</a>
+
+      <section class="hero">
+        <p class="hero-label">Software</p>
+        <h1>This Portfolio Site</h1>
+        <p class="hero-desc">
+          A small Astro site built to hold the rest of these projects —
+          kept minimal, fast, and easy to update as new work gets added.
+        </p>
+        <div class="skill-tags">
+          <span class="skill-tag">Astro</span>
+          <span class="skill-tag">CSS</span>
+          <span class="skill-tag">Vercel</span>
+        </div>
+      </section>
+
+      <p class="section-label">Problem / Goal</p>
+      <div class="content-block">
+        <p>
+          I needed somewhere to put engineering project write-ups that
+          wouldn't get in the way of actually writing them — no CMS to
+          fight, no build pipeline to debug, just a page per project I could
+          add to as work progressed.
+        </p>
+      </div>
+
+      <p class="section-label">Approach &amp; Key Decisions</p>
+      <div class="content-block">
+        <p>
+          Built with Astro, using one file per page (a homepage plus one
+          file per project under <code>/projects</code>) with the CSS
+          written inline in each file's <code>&lt;style&gt;</code> block
+          rather than pulled into a shared stylesheet or component library.
+          That trades some duplication for the ability to open any single
+          page and see everything that affects it in one place — no hunting
+          across shared components to change how one project looks.
+          Deployed on Vercel, connected directly to GitHub, so pushing to
+          the repo is the entire deploy process.
+        </p>
+      </div>
+
+      <p class="section-label">Results / Data</p>
+      <div class="content-block">
+        <p>
+          The site is live, fast (static output, no client-side framework
+          overhead), and every project on it — including this one — follows
+          the same structure: a hero, then Problem/Approach/Results/Lessons
+          sections, so new projects are quick to add without redesigning
+          anything.
+        </p>
+      </div>
+
+      <p class="section-label">Lessons Learned / What's Next</p>
+      <div class="content-block">
+        <p>
+          Per-file inline CSS is easy to reason about at this scale (a
+          handful of pages) but will need revisiting — shared tokens or a
+          small component layer — if the project count grows enough that
+          keeping the styling consistent by hand becomes a chore.
+        </p>
+      </div>
+
+      <footer>
+        <p>Marcus David Yang</p>
+        <a href="https://github.com" target="_blank" rel="noopener">github ↗</a>
+      </footer>
+
+    </div>
+
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: 'DM Sans', sans-serif;
+        background: #fafaf9;
+        color: #1a1a18;
+      }
+
+      #wrapper {
+        width: 100%;
+        max-width: 860px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 80px;
+        padding-right: 80px;
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2.5rem;
+        padding-bottom: 2.5rem;
+        border-bottom: 1px solid #e0dfd8;
+        margin-bottom: 2.5rem;
+      }
+
+      .nav-name {
+        font-family: 'DM Mono', monospace;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-links a {
+        font-size: 14px;
+        color: #888780;
+        text-decoration: none;
+      }
+
+      .nav-links a:hover { color: #1a1a18; }
+
+      .back-link {
+        display: inline-block;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #888780;
+        text-decoration: none;
+        letter-spacing: 0.04em;
+        margin-bottom: 2.5rem;
+      }
+
+      .back-link:hover { color: #1a1a18; }
+
+      .hero {
+        margin-bottom: 5rem;
+      }
+
+      .hero-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #b4b2a9;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 1.25rem;
+      }
+
+      .hero h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 44px;
+        font-weight: 400;
+        line-height: 1.15;
+        margin-bottom: 1.5rem;
+      }
+
+      .hero-desc {
+        font-size: 16px;
+        color: #5f5e5a;
+        line-height: 1.7;
+        max-width: 480px;
+        margin-bottom: 1.5rem;
+      }
+
+      .skill-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .skill-tag {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        color: #888780;
+        border: 1px solid #d3d1c7;
+        border-radius: 100px;
+        padding: 3px 9px;
+      }
+
+      .section-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: #b4b2a9;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 1.25rem;
+      }
+
+      .content-block {
+        margin-bottom: 4rem;
+      }
+
+      .content-block p {
+        font-size: 15px;
+        color: #5f5e5a;
+        line-height: 1.75;
+        max-width: 560px;
+      }
+
+      .content-block code {
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        background: #f1efea;
+        padding: 1px 5px;
+        border-radius: 4px;
+      }
+
+      footer {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+        border-top: 1px solid #e0dfd8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      footer p {
+        font-size: 13px;
+        color: #b4b2a9;
+        font-family: 'DM Mono', monospace;
+      }
+
+      footer a {
+        font-size: 13px;
+        color: #b4b2a9;
+        font-family: 'DM Mono', monospace;
+        text-decoration: none;
+      }
+
+      footer a:hover { color: #1a1a18; }
+
+      @media (max-width: 640px) {
+        #wrapper {
+          padding-left: 24px;
+          padding-right: 24px;
+        }
+      }
+    </style>
+  </body>
+</html>

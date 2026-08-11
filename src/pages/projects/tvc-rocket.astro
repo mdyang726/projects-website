@@ -1,0 +1,592 @@
+---
+
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>TVC Rocket · Marcus</title>
+        <meta name="description" content="An in-progress 4-inch model rocket with active two-axis thrust-vector control, a Teensy 4.1 flight computer, and a layered Python flight simulation stack." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div id="wrapper">
+            <nav>
+                <span class="nav-name"
+                    >Marcus David Yang | Aerospace Engineer @ UIUC</span
+                >
+                <div class="nav-links">
+                    <a href="/">Home</a>
+                </div>
+            </nav>
+
+            <a href="/#projects" class="back-link">← projects</a>
+
+            <section class="hero">
+                <span class="badge-progress">in progress</span>
+                <p class="hero-label">Aerospace · Propulsion &amp; Controls</p>
+                <h1>Thrust Vector<br />Control Rocket</h1>
+                <p class="hero-desc">
+                    Building a 4"-diameter model rocket with an active
+                    thrust-vector-control system, aiming toward a fully
+                    propulsive vertical landing — the Falcon 9 booster
+                    concept, built at hobbyist scale from COTS and
+                    3D-printed parts. A Teensy 4.1 flight computer drives a
+                    two-axis gimbaled motor mount through a PID loop reading
+                    attitude from an onboard IMU.
+                </p>
+                <div class="skill-tags">
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">PID Control</span>
+                    <span class="skill-tag">Monte Carlo Simulation</span>
+                    <span class="skill-tag">Siemens NX</span>
+                    <span class="skill-tag">NXOpen / Python</span>
+                    <span class="skill-tag">Embedded (Teensy 4.1)</span>
+                    <span class="skill-tag">OpenRocket</span>
+                </div>
+            </section>
+
+            <p class="section-label">Problem / Goal</p>
+            <div class="content-block">
+                <p>
+                    The goal is a fully propulsive vertical landing at
+                    hobbyist scale — the same concept as a Falcon 9 booster
+                    return, built from commercial-off-the-shelf and
+                    3D-printed parts rather than an orbital-class vehicle.
+                    That means a flight computer that can read the rocket's
+                    attitude in real time and actively correct it through a
+                    gimbaled motor mount, rather than relying on fins for
+                    passive stability.
+                </p>
+                <p>
+                    The long-term architecture uses two solid motors stacked
+                    in series rather than a throttleable engine: an ascent
+                    motor for launch and a separate landing motor for the
+                    descent burn. Because the motors are fixed-thrust,
+                    control comes from <em>timing</em> — the flight computer
+                    has to calculate the ignition altitude for the landing
+                    burn dynamically at apogee — rather than from
+                    throttling. The project is informed by an existence
+                    proof: a hobbyist ("Project Horizon") flew a rocket
+                    called Eagle using the same motor class and the same
+                    flight-computer architecture (Teensy 4.1) and achieved a
+                    successful propulsive landing after 30 iterative
+                    attempts.
+                </p>
+            </div>
+
+            <p class="section-label">Approach &amp; Key Decisions</p>
+            <div class="content-block">
+                <p>
+                    <strong>Simulation, built in layers.</strong> Before any
+                    hardware design, I modeled descent physics (gravity,
+                    drag, IMU double-integration for altitude) to answer one
+                    question: after the flight computer detects the ignition
+                    altitude, is there enough time before ground impact to
+                    fire the landing motor and get meaningful thrust out of
+                    it? That meant building a full latency budget — sensor
+                    loop cycle, MOSFET switching time, e-match ignition
+                    delay, motor spool-up time — and subtracting it from the
+                    physical time-to-impact. That budget turned out to be the
+                    single constraint the rest of the vehicle design has to
+                    satisfy, and it set starting values for apogee altitude
+                    and detection altitude before any CAD existed.
+                </p>
+                <p>
+                    From there, a control law: sweeping possible apogee
+                    altitudes and solving for the minimum safe ignition
+                    altitude at each one produces a linear fit,
+                    h_b = m·Ap + c, that runs as firmware — every flight
+                    measures its own apogee and computes its own ignition
+                    altitude, rather than flying to a fixed number. A full 2D
+                    pitch-plane flight sim (<code>tvc_sim.py</code>) then
+                    modeled the digitized F15 motor thrust curve, time-varying
+                    mass/CG/inertia as propellant burns and motors eject,
+                    finless aerodynamics, and gimbaled-thrust dynamics
+                    through the full ascent → coast → descent → landing-burn
+                    → touchdown sequence, running the same
+                    PID-with-thrust-feed-forward controller that's meant to
+                    fly onboard.
+                </p>
+                <p>
+                    A stochastic layer on top
+                    (<code>tvc_sim_stochastic.py</code>,
+                    <code>tvc_sim_sweeps.py</code>) added IMU
+                    accelerometer/gyro noise and bias, a strapdown
+                    attitude/altitude estimator running at realistic sensor
+                    rates (1 kHz IMU, 100 Hz control loop, optional
+                    barometer fusion), servo dynamics, crosswind and gusts,
+                    and motor-to-motor impulse scatter — turning hundreds of
+                    randomized flights into a distribution of touchdown
+                    velocities instead of one idealized answer. Parameter
+                    sweeps showed touchdown velocity is far more sensitive to
+                    IMU accelerometer bias than to servo speed, which
+                    redirected effort toward sensor calibration over faster
+                    servos.
+                </p>
+                <p>
+                    <strong>Design trade-offs.</strong> An early
+                    multi-perspective design review (five independent
+                    analyses plus cross-review, synthesized into one brief)
+                    set the core architecture: shared gimbal and PID/TVC code
+                    for both ascent and landing burns, a low center of
+                    gravity for passive self-righting during unpowered
+                    descent, a dynamic (not fixed) ignition-altitude law,
+                    legs sized for off-nominal landing velocities rather than
+                    just the nominal case, and a five-state flight software
+                    model (boost → coast → descent → ignition → landing). A
+                    4" commercial airframe and nose cone were chosen
+                    specifically to avoid needing CFD — known, published
+                    aerodynamics. Because the vehicle is finless and relies
+                    on active TVC, the traditional "positive stability
+                    margin" goal doesn't apply the way it would to a normal
+                    model rocket; the real requirement is a torque budget
+                    where gimbal-deflected thrust can out-torque the
+                    aerodynamic destabilizing moment through the burn.
+                    CG/CP modeling is being done in OpenRocket, with the
+                    first pass run using placeholder masses pending final
+                    hardware weigh-in.
+                </p>
+                <p>
+                    A launch-off-the-legs plan was dropped once the low-CG
+                    design was confirmed passively unstable during
+                    ascent — the same property that helps it self-right on
+                    descent works against it going up — in favor of a
+                    lug/rail launcher, sized after determining the rocket's
+                    mass and hardware likely put it past the point where a
+                    thin launch rod would be adequate ("rod whip" risk).
+                    Recovery iterated toward a servo-actuated nose-cone
+                    separation: a servo retracts a hook/pin, a compression
+                    spring provides positive separation, and the nose cone
+                    stays tethered by a Kevlar shock cord through a
+                    ball-bearing swivel (to prevent parachute twist) with the
+                    chute packed in-line. Motor staging reuses a friction-fit,
+                    e-match-sandwiched coupling from the reference build: the
+                    ascent motor's own thrust holds it against the landing
+                    motor during boost, and the landing motor's ignition
+                    ejects the spent casing — no separate mechanical release
+                    needed.
+                </p>
+                <p>
+                    <strong>Scope discipline.</strong> The first flight is
+                    deliberately scoped down to TVC-controlled ascent with
+                    parachute recovery only, deferring the two-motor
+                    propulsive landing stack and legs to a later flight once
+                    ascent control is proven on real flight data. That
+                    follows from a testing philosophy of treating every
+                    flight as a data-collection event rather than a
+                    pass/fail attempt, and maximizing what can be validated
+                    on the bench — static fires, hardware-in-the-loop
+                    state-machine testing, drop tests for leg deployment —
+                    before committing to a full-system flight.
+                </p>
+            </div>
+
+            <p class="section-label">Results / Data</p>
+            <div class="content-block">
+                <p>
+                    Simulation results so far: the Monte Carlo sweeps
+                    established that touchdown velocity is dominated by IMU
+                    accelerometer bias rather than servo response speed —
+                    a concrete result that changed where engineering effort
+                    is going (sensor calibration and fusion, not faster
+                    actuators).
+                </p>
+                <p>
+                    On the hardware side, mechanical design is done in
+                    Siemens NX with STEP/STL export for 3D printing. Parts
+                    modeled and iterated so far include the TVC gimbal
+                    assembly (inner ring, outer ring, and arm components
+                    across multiple versions), a motor container currently
+                    being redesigned after the first version came out
+                    oversized, a parametric tangent-ogive nose cone generated
+                    from a scripted NXOpen (Python) journal so the geometry
+                    can be regenerated instantly if the body-tube diameter or
+                    ogive length changes, a full-vehicle model used to check
+                    part fit and packaging, and an avionics bay that went
+                    through a full redesign — from a two-sled,
+                    threaded-rod-rail concept to a single rigid printed tray
+                    (~88 × 130 mm) that mounts directly to the airframe wall,
+                    laid out for the Teensy, IMU, barometer, both voltage
+                    regulators, the power-distribution perfboard, and the
+                    battery, with the IMU intentionally mounted rigidly
+                    rather than vibration-isolated. CAD outputs feed directly
+                    back into simulation: measured and estimated part
+                    masses/dimensions are tracked in a parts-reference table
+                    used to build the OpenRocket aerodynamic/stability model.
+                </p>
+                <p>
+                    The gimbal itself is a dual-axis ring assembly that
+                    holds the motor mount and allows independent rotation
+                    about two perpendicular axes via pivot tabs sized for
+                    servo linkages — a ring-within-a-ring layout that keeps
+                    the motor centerline free while routing actuation loads
+                    through the outer mounting tabs. Parts are 3D-printed to
+                    iterate quickly on tolerances between the inner motor
+                    mount and outer ring before committing to a final
+                    material.
+                </p>
+                <div class="gallery">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2485.JPG"
+                            alt="TVC gimbal ring assembly, front view"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal ring assembly, front view.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2486.JPG"
+                            alt="TVC gimbal ring assembly, angled view"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal ring assembly, angled view.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2542.JPG"
+                            alt="Printed gimbal mount, side profile"
+                            loading="lazy"
+                        />
+                        <p class="caption">Printed gimbal mount, side profile.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2545.JPG"
+                            alt="Printed gimbal mount with motor tube installed"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal mount with motor tube installed.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2487.JPG"
+                            alt="Gimbal assembly test fit"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal assembly, test fit.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2492.JPG"
+                            alt="Gimbal assembly test fit, alternate angle"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal assembly test fit, alternate angle.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2493.JPG"
+                            alt="Gimbal assembly, close detail"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal assembly, close detail.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2543.JPG"
+                            alt="Gimbal assembly, side detail"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal assembly, side detail.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2544.JPG"
+                            alt="Gimbal hardware, additional view"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal hardware, additional view.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/IMG_2546.JPG"
+                            alt="Gimbal hardware, additional view"
+                            loading="lazy"
+                        />
+                        <p class="caption">Gimbal hardware, additional view.</p>
+                    </div>
+                </div>
+                <p>
+                    In the video below, I'm driving the gimbal manually in
+                    real time off an MPU-6050 IMU — a bench test of the
+                    sensing and actuation pipeline ahead of running it
+                    closed-loop under the onboard PID controller.
+                </p>
+                <div class="image-placeholder video-placeholder">
+                    <video src="/images/tvc-rocket/IMG_2494.mp4" controls></video>
+                    <p class="caption">Manual gimbal actuation, bench test.</p>
+                </div>
+            </div>
+
+            <p class="section-label">Lessons Learned / What's Next</p>
+            <div class="content-block">
+                <p>
+                    The Monte Carlo sweeps were the clearest lesson so far:
+                    intuition said servo speed would dominate landing
+                    performance, and the data said otherwise. Sweeping
+                    parameters individually before committing engineering
+                    time to any one subsystem is now part of how I'd approach
+                    the next project, not just this one.
+                </p>
+                <p>
+                    Open risks currently being tracked: motor thrust-to-weight
+                    margin (vehicle mass has to stay within a fairly narrow
+                    band for the selected Estes F15-0 motor to provide
+                    adequate liftoff acceleration), a control-loop latency
+                    failure mode inherited as a known risk from the reference
+                    build, and whether the finished vehicle's weight or motor
+                    impulse crosses from model-rocket into
+                    high-power-rocketry classification, which would trigger
+                    certification requirements. Next up is finishing the
+                    avionics bay and motor container redesigns, closing out
+                    the OpenRocket stability model with real (not
+                    placeholder) part masses, and working toward the
+                    descoped first flight — TVC-controlled ascent with
+                    parachute recovery only — before attempting the full
+                    two-motor propulsive landing sequence on a later flight.
+                </p>
+            </div>
+
+            <footer>
+                <p>Marcus David Yang</p>
+                <a href="https://github.com" target="_blank" rel="noopener">github ↗</a>
+            </footer>
+        </div>
+
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: "DM Sans", sans-serif;
+                background: #fafaf9;
+                color: #1a1a18;
+            }
+
+            #wrapper {
+                width: 100%;
+                max-width: 860px;
+                margin-left: auto;
+                margin-right: auto;
+                padding-left: 80px;
+                padding-right: 80px;
+            }
+
+            nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 2.5rem;
+                padding-bottom: 2.5rem;
+                border-bottom: 1px solid #e0dfd8;
+                margin-bottom: 2.5rem;
+            }
+
+            .nav-name {
+                font-family: "DM Mono", monospace;
+                font-size: 14px;
+                font-weight: 500;
+                letter-spacing: 0.04em;
+            }
+
+            .nav-links {
+                display: flex;
+                gap: 2rem;
+            }
+
+            .nav-links a {
+                font-size: 14px;
+                color: #888780;
+                text-decoration: none;
+            }
+
+            .nav-links a:hover {
+                color: #1a1a18;
+            }
+
+            .back-link {
+                display: inline-block;
+                font-family: "DM Mono", monospace;
+                font-size: 12px;
+                color: #888780;
+                text-decoration: none;
+                letter-spacing: 0.04em;
+                margin-bottom: 2.5rem;
+            }
+
+            .back-link:hover {
+                color: #1a1a18;
+            }
+
+            .hero {
+                margin-bottom: 5rem;
+            }
+
+            .badge-progress {
+                display: inline-block;
+                font-family: "DM Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.06em;
+                padding: 3px 8px;
+                border-radius: 4px;
+                margin-bottom: 1rem;
+                background: #FBEFD8;
+                color: #92600B;
+            }
+
+            .hero-label {
+                font-family: "DM Mono", monospace;
+                font-size: 12px;
+                color: #b4b2a9;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-bottom: 1.25rem;
+            }
+
+            .hero h1 {
+                font-family: "DM Serif Display", serif;
+                font-size: 44px;
+                font-weight: 400;
+                line-height: 1.15;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-desc {
+                font-size: 16px;
+                color: #5f5e5a;
+                line-height: 1.7;
+                max-width: 480px;
+                margin-bottom: 1.5rem;
+            }
+
+            .skill-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .skill-tag {
+                font-family: "DM Mono", monospace;
+                font-size: 10px;
+                color: #888780;
+                border: 1px solid #d3d1c7;
+                border-radius: 100px;
+                padding: 3px 9px;
+            }
+
+            .section-label {
+                font-family: "DM Mono", monospace;
+                font-size: 11px;
+                color: #b4b2a9;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                margin-bottom: 1.25rem;
+            }
+
+            .content-block {
+                margin-bottom: 4rem;
+            }
+
+            .content-block p {
+                font-size: 15px;
+                color: #5f5e5a;
+                line-height: 1.75;
+                max-width: 560px;
+                margin-bottom: 1.5rem;
+            }
+
+            .content-block code {
+                font-family: "DM Mono", monospace;
+                font-size: 13px;
+                background: #f1efea;
+                padding: 1px 5px;
+                border-radius: 4px;
+            }
+
+            .image-placeholder {
+                border: 1px solid #e0dfd8;
+                border-radius: 12px;
+                overflow: hidden;
+                background: #f1efea;
+            }
+
+            .image-placeholder img {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
+
+            .image-placeholder .caption {
+                font-family: "DM Mono", monospace;
+                font-size: 11px;
+                color: #b4b2a9;
+                padding: 10px 12px;
+                margin: 0;
+                max-width: none;
+            }
+
+            .image-placeholder.video-placeholder {
+                margin-top: 1rem;
+            }
+
+            .image-placeholder video {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
+
+            .gallery {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            footer {
+                padding-top: 2rem;
+                padding-bottom: 3rem;
+                border-top: 1px solid #e0dfd8;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            footer p {
+                font-size: 13px;
+                color: #b4b2a9;
+                font-family: "DM Mono", monospace;
+            }
+
+            footer a {
+                font-size: 13px;
+                color: #b4b2a9;
+                font-family: "DM Mono", monospace;
+                text-decoration: none;
+            }
+
+            footer a:hover {
+                color: #1a1a18;
+            }
+
+            @media (max-width: 640px) {
+                #wrapper {
+                    padding-left: 24px;
+                    padding-right: 24px;
+                }
+                .gallery {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </body>
+</html>

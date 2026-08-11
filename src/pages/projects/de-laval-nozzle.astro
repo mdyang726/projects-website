@@ -1,0 +1,341 @@
+---
+
+---
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>de Laval Nozzle CFD · Marcus</title>
+        <meta name="description" content="CFD analysis of a converging-diverging (de Laval) nozzle: geometry, meshing, and compressible flow simulation in ANSYS Fluent." />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div id="wrapper">
+            <nav>
+                <span class="nav-name"
+                    >Marcus David Yang | Aerospace Engineer @ UIUC</span
+                >
+                <div class="nav-links">
+                    <a href="/">Home</a>
+                </div>
+            </nav>
+
+            <a href="/#projects" class="back-link">← projects</a>
+
+            <section class="hero">
+                <p class="hero-label">Aerospace · CFD</p>
+                <h1>CFD Analysis of a<br />de Laval Nozzle</h1>
+                <p class="hero-desc">
+                    Designed and analyzed a converging-diverging (de Laval) nozzle using
+                    Siemens NX, SpaceClaim, ANSYS Meshing, and ANSYS Fluent, to
+                    characterize the transition from subsonic to supersonic flow
+                    through the throat.
+                </p>
+                <div class="skill-tags">
+                    <span class="skill-tag">Siemens NX</span>
+                    <span class="skill-tag">SpaceClaim</span>
+                    <span class="skill-tag">ANSYS Meshing</span>
+                    <span class="skill-tag">ANSYS Fluent</span>
+                    <span class="skill-tag">CFD</span>
+                </div>
+            </section>
+
+            <p class="section-label">Problem / Goal</p>
+            <div class="content-block">
+                <p>
+                    A de Laval nozzle accelerates flow from subsonic to
+                    supersonic by narrowing to a throat and then diverging —
+                    the same geometry behind every rocket engine bell. The
+                    goal was to design a nozzle geometry, generate a mesh
+                    accurate enough to resolve the transonic region at the
+                    throat, and run a compressible-flow simulation to confirm
+                    the flow actually behaves the way isentropic nozzle
+                    theory predicts, from subsonic inlet through supersonic
+                    expansion.
+                </p>
+            </div>
+
+            <p class="section-label">Approach &amp; Key Decisions</p>
+            <div class="content-block">
+                <p>
+                    Geometry was built in Siemens NX and cleaned up in
+                    SpaceClaim before meshing. The mesh itself was
+                    unstructured tetrahedral, with local refinement
+                    concentrated near the throat — that's the region where
+                    velocity and pressure gradients are steepest, and a
+                    coarse mesh there would smear out the exact behavior
+                    (shock structure, expansion fan) the simulation was meant
+                    to capture. Keeping the rest of the domain coarser kept
+                    cell count, and therefore solve time, manageable.
+                </p>
+                <div class="image-placeholder">
+                    <img
+                        src="/images/de-laval-nozzle/de-laval-nozzle-mesh.png"
+                        alt="Nozzle mesh, refined near the throat"
+                    />
+                </div>
+                <p>
+                    In ANSYS Fluent, the solver was configured as
+                    density-based rather than pressure-based, since
+                    density-based solvers handle the strong compressibility
+                    and shock-capturing this flow regime requires more
+                    robustly. Boundary conditions were set for a subsonic
+                    inlet and supersonic outlet to match the physical
+                    problem — flow enters slow and pressurized, and should
+                    leave the diverging section already supersonic.
+                </p>
+                <div class="image-row">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/de-laval-nozzle/inlet-velocity-magnitude.png"
+                            alt="Inlet velocity contour"
+                        />
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/de-laval-nozzle/outlet-velocity-magnitude.png"
+                            alt="Outlet velocity contour"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <p class="section-label">Results / Data</p>
+            <div class="content-block">
+                <p>
+                    Flow accelerated through the throat and expanded
+                    supersonically in the diverging section, consistent with
+                    isentropic nozzle theory. Mach contours confirmed the
+                    expected shock structure, and the velocity contours below
+                    show the expansion carrying through cleanly from inlet to
+                    outlet with no unexpected separation or recirculation.
+                </p>
+                <div class="image-row">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/de-laval-nozzle/mach-contour.png"
+                            alt="Mach contour showing supersonic expansion"
+                        />
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/de-laval-nozzle/velocity-contour.png"
+                            alt="Velocity contour through the nozzle"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <p class="section-label">Lessons Learned / What's Next</p>
+            <div class="content-block">
+                <p>
+                    Mesh quality near the throat mattered far more to result
+                    fidelity than overall cell count — refining the right
+                    region was more effective than refining everything. This
+                    workflow (NX/SpaceClaim geometry into ANSYS meshing and
+                    Fluent) is the same compressible-flow pipeline that
+                    carries over to modeling actual rocket motor nozzles, and
+                    is a natural next step once there's real motor geometry
+                    and chamber conditions to simulate against.
+                </p>
+            </div>
+
+            <footer>
+                <p>Marcus David Yang</p>
+                <a href="https://github.com" target="_blank" rel="noopener">github ↗</a>
+            </footer>
+        </div>
+
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: "DM Sans", sans-serif;
+                background: #fafaf9;
+                color: #1a1a18;
+            }
+
+            #wrapper {
+                width: 100%;
+                max-width: 860px;
+                margin-left: auto;
+                margin-right: auto;
+                padding-left: 80px;
+                padding-right: 80px;
+            }
+
+            nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding-top: 2.5rem;
+                padding-bottom: 2.5rem;
+                border-bottom: 1px solid #e0dfd8;
+                margin-bottom: 2.5rem;
+            }
+
+            .nav-name {
+                font-family: "DM Mono", monospace;
+                font-size: 14px;
+                font-weight: 500;
+                letter-spacing: 0.04em;
+            }
+
+            .nav-links {
+                display: flex;
+                gap: 2rem;
+            }
+
+            .nav-links a {
+                font-size: 14px;
+                color: #888780;
+                text-decoration: none;
+            }
+
+            .nav-links a:hover {
+                color: #1a1a18;
+            }
+
+            .back-link {
+                display: inline-block;
+                font-family: "DM Mono", monospace;
+                font-size: 12px;
+                color: #888780;
+                text-decoration: none;
+                letter-spacing: 0.04em;
+                margin-bottom: 2.5rem;
+            }
+
+            .back-link:hover {
+                color: #1a1a18;
+            }
+
+            .hero {
+                margin-bottom: 5rem;
+            }
+
+            .hero-label {
+                font-family: "DM Mono", monospace;
+                font-size: 12px;
+                color: #b4b2a9;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-bottom: 1.25rem;
+            }
+
+            .hero h1 {
+                font-family: "DM Serif Display", serif;
+                font-size: 44px;
+                font-weight: 400;
+                line-height: 1.15;
+                margin-bottom: 1.5rem;
+            }
+
+            .hero-desc {
+                font-size: 16px;
+                color: #5f5e5a;
+                line-height: 1.7;
+                max-width: 480px;
+                margin-bottom: 1.5rem;
+            }
+
+            .skill-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .skill-tag {
+                font-family: "DM Mono", monospace;
+                font-size: 10px;
+                color: #888780;
+                border: 1px solid #d3d1c7;
+                border-radius: 100px;
+                padding: 3px 9px;
+            }
+
+            .section-label {
+                font-family: "DM Mono", monospace;
+                font-size: 11px;
+                color: #b4b2a9;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                margin-bottom: 1.25rem;
+            }
+
+            .content-block {
+                margin-bottom: 4rem;
+            }
+
+            .content-block p {
+                font-size: 15px;
+                color: #5f5e5a;
+                line-height: 1.75;
+                max-width: 560px;
+                margin-bottom: 1.5rem;
+            }
+
+            .image-placeholder {
+                border: 1px solid #e0dfd8;
+                border-radius: 12px;
+                overflow: hidden;
+                background: #f1efea;
+                margin-bottom: 1.5rem;
+            }
+
+            .image-placeholder img {
+                display: block;
+                width: 100%;
+                height: auto;
+            }
+
+            .image-row {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            footer {
+                padding-top: 2rem;
+                padding-bottom: 3rem;
+                border-top: 1px solid #e0dfd8;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            footer p {
+                font-size: 13px;
+                color: #b4b2a9;
+                font-family: "DM Mono", monospace;
+            }
+
+            footer a {
+                font-size: 13px;
+                color: #b4b2a9;
+                font-family: "DM Mono", monospace;
+                text-decoration: none;
+            }
+
+            footer a:hover {
+                color: #1a1a18;
+            }
+
+            @media (max-width: 640px) {
+                #wrapper {
+                    padding-left: 24px;
+                    padding-right: 24px;
+                }
+            }
+        </style>
+    </body>
+</html>
