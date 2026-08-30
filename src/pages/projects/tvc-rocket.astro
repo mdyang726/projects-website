@@ -187,49 +187,43 @@
                 </p>
             </div>
 
-            <p class="section-label">Results / Data</p>
+            <p class="section-label">Simulation Results</p>
             <div class="content-block">
                 <p>
-                    Simulation results so far: the Monte Carlo sweeps
-                    established that touchdown velocity is dominated by IMU
-                    accelerometer bias rather than servo response speed —
-                    a concrete result that changed where engineering effort
-                    is going (sensor calibration and fusion, not faster
-                    actuators).
+                    The Monte Carlo sweeps established that touchdown velocity
+                    is dominated by IMU accelerometer bias rather than servo
+                    response speed — a concrete result that changed where
+                    engineering effort is going (sensor calibration and fusion,
+                    not faster actuators).
                 </p>
                 <p>
-                    On the hardware side, mechanical design is done in
-                    Siemens NX with STEP/STL export for 3D printing. Parts
-                    modeled and iterated so far include the TVC gimbal
-                    assembly (inner ring, outer ring, and arm components
-                    across multiple versions), a motor container currently
-                    being redesigned after the first version came out
-                    oversized, a parametric tangent-ogive nose cone generated
-                    from a scripted NXOpen (Python) journal so the geometry
-                    can be regenerated instantly if the body-tube diameter or
-                    ogive length changes, a full-vehicle model used to check
-                    part fit and packaging, and an avionics bay that went
-                    through a full redesign — from a two-sled,
-                    threaded-rod-rail concept to a single rigid printed tray
-                    (~88 × 130 mm) that mounts directly to the airframe wall,
-                    laid out for the Teensy, IMU, barometer, both voltage
-                    regulators, the power-distribution perfboard, and the
-                    battery, with the IMU intentionally mounted rigidly
-                    rather than vibration-isolated. CAD outputs feed directly
-                    back into simulation: measured and estimated part
-                    masses/dimensions are tracked in a parts-reference table
-                    used to build the OpenRocket aerodynamic/stability model.
+                    CAD outputs feed directly back into simulation: measured and
+                    estimated part masses and dimensions are tracked in a
+                    parts-reference table used to build the OpenRocket
+                    aerodynamic/stability model. The gimbal, avionics bay, and
+                    nose cone designs are all captured below in the build stage
+                    walkthroughs.
+                </p>
+            </div>
+
+            <p class="section-label">Stage 1 — Gimbal &amp; Body Tube</p>
+            <div class="content-block">
+                <p>
+                    A gimbal is 2 rotational degrees of freedom. The first real
+                    constraint was servo selection — MG90S servos had a track
+                    record in similar projects but run large, which set a floor
+                    on the rocket's diameter.
                 </p>
                 <p>
-                    The gimbal itself is a dual-axis ring assembly that
-                    holds the motor mount and allows independent rotation
-                    about two perpendicular axes via pivot tabs sized for
-                    servo linkages — a ring-within-a-ring layout that keeps
-                    the motor centerline free while routing actuation loads
-                    through the outer mounting tabs. Parts are 3D-printed to
-                    iterate quickly on tolerances between the inner motor
-                    mount and outer ring before committing to a final
-                    material.
+                    The CAD work here was almost entirely a dimensioning problem:
+                    the inner and outer rings had to be structurally solid enough
+                    to survive an Estes F15-0's thrust without snapping, while
+                    never colliding with each other through their full range of
+                    rotation, while also being thick enough to mount the servos
+                    themselves. The motor casing was designed to friction-fit the
+                    motor — a decision I'd revisit later, since it doesn't give a
+                    consistent attachment position and the ejection charge risks
+                    disrupting the gimbal's connection to the avionics bay.
                 </p>
                 <div class="gallery">
                     <div class="image-placeholder">
@@ -314,43 +308,368 @@
                     </div>
                 </div>
                 <p>
-                    In the video below, I'm driving the gimbal manually in
-                    real time off an MPU-6050 IMU — a bench test of the
-                    sensing and actuation pipeline ahead of running it
-                    closed-loop under the onboard PID controller.
+                    In the clip below, the gimbal is driven manually in real
+                    time off an MPU-6050 IMU — a bench test of the sensing and
+                    actuation pipeline ahead of running it closed-loop under
+                    the PID controller.
                 </p>
                 <div class="image-placeholder video-placeholder">
                     <video src="/images/tvc-rocket/IMG_2494.mp4" controls></video>
                     <p class="caption">Manual gimbal actuation, bench test.</p>
                 </div>
+                <figure class="image-figure" style="margin-top:1.5rem;">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/09-srm-loading.jpeg"
+                            alt="Loading the SRM into the friction-fit motor casing"
+                            loading="lazy"
+                        />
+                        <p class="caption">Loading the SRM into the friction-fit motor casing.</p>
+                    </div>
+                </figure>
+            </div>
+
+            <p class="section-label">Stage 2 — Avionics Bay</p>
+            <div class="content-block">
+                <p>
+                    The avionics bay covers the sensors, flight computer, buck
+                    converters, and battery, plus the physical question of how
+                    all of it mates together and secures to the airframe.
+                    Perfboards made sense for cost and timeline at this stage.
+                    Brass inserts secure the perfboards into the bay, and long
+                    structural bars plus two threaded rods tie the bulkheads to
+                    the bay for stiffness.
+                </p>
+                <figure class="image-figure">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/03-avionics-bench-test.jpeg"
+                            alt="Bench testing avionics bay control of the servo-driven nose cone"
+                            loading="lazy"
+                        />
+                        <p class="caption">Bench testing avionics bay control of the servo-driven nose cone before the SRM ever went near it.</p>
+                    </div>
+                </figure>
+                <p>
+                    The original design used a bulkhead as the parachute's
+                    attachment point; after a redesign, the nose cone became the
+                    only attachment point instead. Barometer fusion for altitude
+                    was planned but pushed to a later revision — pressurizing the
+                    airframe correctly for a barometer to read cleanly turned out
+                    to be its own problem.
+                </p>
+                <p>
+                    Print settings got tuned specifically for structural stability
+                    on this part: speed, nozzle temp, overhang-based speed,
+                    support settings, seam positioning, wall loop count, sparse
+                    infill pattern, and material choice between PETG and PLA
+                    Basic.
+                </p>
+                <figure class="image-figure">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/08-avionics-accessibility.jpeg"
+                            alt="Working the avionics bay wiring in the field"
+                            loading="lazy"
+                        />
+                        <p class="caption">Working the avionics bay wiring in the field. This is where it became clear accessibility needs to be designed in from the start — everything here is reachable only by hand-threading wires through a tight opening.</p>
+                    </div>
+                </figure>
+            </div>
+
+            <p class="section-label">Stage 3 — Nose Cone</p>
+            <div class="content-block">
+                <p>
+                    Started with a purchased nose cone to de-risk the timeline —
+                    no aero CFD needed when you're copying a commercial body tube
+                    and cone. Switched to a 3D-printed cone later to save mass
+                    and cost, copying the commercial cone's dimensions in PLA.
+                </p>
+                <p>
+                    That's when the CG problem showed up. The avionics bay is
+                    the only component in the rocket with a CG you can actually
+                    move, and once it became the parachute's attachment point,
+                    its position stopped being a free variable — it had to sit
+                    somewhere that made sense for both CG placement and chute
+                    deployment, which meant either redoing the CG/CP
+                    calculations or redesigning around a different attachment
+                    scheme.
+                </p>
+                <p>
+                    The nose cone ended up servo-powered, splitting into three
+                    parts (base, left, right) that pop open when the
+                    accelerometer detects a specific negative acceleration — the
+                    vehicle is falling. The split is off-center on purpose, both
+                    to preserve aerodynamic shape and so incoming airflow doesn't
+                    just force the two halves apart. The parachute attaches
+                    through two eyebolts running through the nose cone bulkhead.
+                </p>
+                <div class="gallery gallery-3">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/01-printing-nosecone.jpeg"
+                            alt="Printing the nose cone base/bulkhead section"
+                            loading="lazy"
+                        />
+                        <p class="caption">Printing the base/bulkhead section on the Bambu Lab A1 Mini.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/02-printing-nosecone-detail.jpeg"
+                            alt="Nose cone print detail"
+                            loading="lazy"
+                        />
+                        <p class="caption">Nose cone print detail.</p>
+                    </div>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/07-nosecone-rubberband.jpeg"
+                            alt="Nose cone held together with rubber band for ground testing"
+                            loading="lazy"
+                        />
+                        <p class="caption">Held together with a rubber band for ground testing, ahead of final fastening.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="section-label">Static Fire Test 1</p>
+            <div class="content-block">
+                <p>
+                    <strong>Setup:</strong> restrained 2-DOF gimbal test stand,
+                    pivot at approximately vehicle CG, sized to hold the F15-0's
+                    thrust. A custom low-resistance test-stand gimbal — separate
+                    from the flight TVC unit — clamps a 4" body tube on the
+                    inner structure and bolts to a shelving frame on the outer
+                    structure, modeled through a Python script imported into NX.
+                </p>
+                <figure class="image-figure">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/06-test-stand-isolated.jpeg"
+                            alt="The isolated test stand and gimbal mount"
+                            loading="lazy"
+                        />
+                        <p class="caption">The isolated test stand and gimbal mount. Note the lean to one side, suspected at the time to be an imbalance from the avionics bay sitting off-center.</p>
+                    </div>
+                </figure>
+                <p>
+                    <strong>What happened:</strong> ignition was clean, but the
+                    vehicle rotated roughly 80° from vertical within 0.7 s and
+                    struck the stand's mechanical stop, rebounding and staying
+                    displaced for the remaining ~2.7 s of the burn. From the
+                    outside, the gimbal looked dead.
+                </p>
+                <figure class="image-figure image-figure--narrow">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/04-static-fire-test1.jpeg"
+                            alt="Test 1 — rocket rotated into the mechanical stop"
+                            loading="lazy"
+                        />
+                        <p class="caption">Test 1 — the rocket rotated into the mechanical stop and stuck there.</p>
+                    </div>
+                </figure>
+                <p>
+                    <strong>What the data actually showed:</strong> the log ran
+                    clean — 278 samples, 83 Hz, zero dropouts over 50 ms, thrust
+                    tracking the certified F15-0 curve almost exactly (peak
+                    thrust fraction 0.997). But the pre-ignition attitude read
+                    +78.8° pitch and +109.5° roll, when video confirmed the
+                    vehicle was within about 1° of plumb before ignition. That
+                    phantom 78° error was enough to clamp the PID output on the
+                    very first sample, and it never recovered — both servo
+                    channels sat at a fixed extreme for the entire burn (inner
+                    servo used only values 86/94, outer only 96/104; each axis
+                    spent 100% of the burn at a ±4° extreme, with only 5–8
+                    command changes total across 273 samples).
+                </p>
+                <p>
+                    The root cause was a one-line bug: the roll computation used
+                    <code>atan2(a.y, a.z)</code>, which assumes Z is the
+                    vertical axis. In this build, Y is the longitudinal axis, so
+                    the math was reading the wrong reference entirely. Once
+                    thrust vibration started, the accelerometer-only attitude
+                    estimate broke down further and roll swept the full ±180°
+                    range — the textbook failure mode of trusting an
+                    accelerometer for tilt under vibration, since it only works
+                    if the sensor is reading gravity alone.
+                </p>
+                <p>
+                    The key piece of evidence came from frame-by-frame video
+                    analysis (446 frames, ignition at t = 8.43 s): the exhaust
+                    plume was visibly vectored about 15° off the airframe axis
+                    for the whole burn, and the direction of that deflection
+                    matched the direction of the observed rotation. The gimbal
+                    wasn't inactive — it <em>caused</em> the rotation, holding a
+                    hard-over deflection commanded by a sensor reporting an
+                    attitude error that didn't exist.
+                </p>
+                <p>
+                    Fixes applied before Test 2: corrected <code>atan2</code>
+                    argument order, removed a <code>motorIgnited = true</code>
+                    at boot that had been bypassing real ignition detection,
+                    added complementary-filter gyro fusion (α = 0.98), added
+                    boot-time gyro bias calibration, added a deployment-inhibit
+                    flag, and raised the gain-schedule floor from 0.05 to 0.4
+                    (capping PID amplification at 2.5× instead of 20×).
+                    Hands-off bench validation after the mounting fix held pitch
+                    −0.10° / roll +6.45° with 0.09° standard deviation over
+                    30 s — confirming the sensor fix before spending another
+                    motor.
+                </p>
+            </div>
+
+            <p class="section-label">Static Fire Test 2</p>
+            <div class="content-block">
+                <figure class="image-figure image-figure--narrow">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/05-initial-setup-tilt.jpeg"
+                            alt="Rig setup ahead of Test 2"
+                            loading="lazy"
+                        />
+                        <p class="caption">Rig setup ahead of Test 2, all fixes from Test 1 applied.</p>
+                    </div>
+                </figure>
+                <p>
+                    <strong>Setup:</strong> all Test 1 fixes live — real
+                    ignition detection, gyro-fused attitude, deployment
+                    inhibited and logged but not actuated. Pre-ignition attitude
+                    held pitch −1.75° (σ 0.14) and roll −8.92° (σ 0.21) for
+                    the three seconds before ignition, both servos parked at
+                    center, body rates under 0.4°/s. Clean setup.
+                </p>
+                <p>
+                    <strong>What happened:</strong> at ignition the vehicle
+                    diverged immediately and monotonically, reaching −307° in
+                    pitch within 2.5 s.
+                </p>
+                <figure class="image-figure image-figure--narrow">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/10-static-fire-test2.jpeg"
+                            alt="Test 2 — clean ignition, then immediate divergence"
+                            loading="lazy"
+                        />
+                        <p class="caption">Test 2 — clean ignition, then immediate divergence.</p>
+                    </div>
+                </figure>
+                <p>
+                    <strong>What the data actually showed:</strong> this was a
+                    fully different failure from Test 1, and it's the more
+                    interesting one — Test 2 is the first data set that actually
+                    closes the loop, recording what the vehicle did in response
+                    to a known command. Both control signs were inverted. At
+                    every sampled point in the first 0.9 s, a command to
+                    increase pitch produced a pitch that decreased instead —
+                    100% of the pitch axis and 9 of 11 sampled roll points moved
+                    opposite to the commanded correction. That's positive
+                    feedback: every correction the controller made enlarged the
+                    error instead of shrinking it, so it saturated within about
+                    two loop iterations and stayed pinned there (98.9% / 96.3%
+                    time-at-extreme on inner/outer). The measured angular
+                    acceleration, −567°/s², was the same order of magnitude as
+                    the ≈330°/s² measured optically in Test 1.
+                </p>
+                <p>
+                    The reason bench testing didn't catch this: earlier
+                    servo-direction checks confirmed which way each
+                    <em>servo</em> moves for a given command. But loop sign
+                    depends on which way the <em>vehicle</em> rotates in
+                    response to the resulting nozzle deflection — a different
+                    question entirely, and correctness on the first doesn't
+                    imply correctness on the second.
+                </p>
+                <p>
+                    A secondary finding came out of the deployment logic:
+                    accelerometer dead-reckoning produced −52.5 m/s of apparent
+                    vertical velocity by burnout on a vehicle that never
+                    physically moved, and the velocity-based deployment trigger
+                    fired 0.03 s after the arming delay expired — meaning in an
+                    actual flight this logic would have deployed the parachute at
+                    burnout, at max velocity. <code>DEPLOYMENT_INHIBITED</code>
+                    correctly suppressed the actuation, but the finding ruled out
+                    accelerometer integration as a deployment trigger; a
+                    barometric altimeter is required going forward.
+                </p>
+                <p>
+                    There's also a resolution problem sitting underneath the sign
+                    bug: the gimbal linkage has a measured 2.3× servo-to-gimbal
+                    ratio, and with <code>PWMServo.write()</code> restricted to
+                    integer degrees, the entire ±10° gimbal range collapses onto
+                    about <strong>9 discrete servo positions, roughly 2.6° apart</strong>.
+                    That's coarser than the attitude error the controller is
+                    trying to null — so even with the sign corrected, the system
+                    can't finely settle near zero error. This is why both tests
+                    show the same saturation signature despite having two
+                    unrelated root causes: saturation looks the same on the
+                    outside whether it comes from a false 78° reference or an
+                    inverted sign, because in both cases the controller is
+                    working against a resolution and range problem it can't
+                    escape.
+                </p>
+                <figure class="image-figure image-figure--narrow">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/11-test-stand-broken.jpeg"
+                            alt="The test stand gimbal after Test 2"
+                            loading="lazy"
+                        />
+                        <p class="caption">The test stand gimbal after Test 2 — didn't survive a second hard-over event.</p>
+                    </div>
+                </figure>
+                <p>
+                    <strong>Hypotheses ruled out:</strong> lateral CG offset from
+                    the off-center avionics bay — ruled out; the vehicle sat
+                    motionless within ~1° of plumb for 8 seconds before Test 1
+                    ignition, and the resting lean turned out to be pivot
+                    friction (not repeatable session-to-session). Servo thermal
+                    damage from a prolonged stall — ruled out; Test 2 showed
+                    normal servo response. Gyro clipping under vibration — not
+                    the primary cause (the stand allows free rotation and the
+                    numbers match Test 1's independent optical measurement), but
+                    the gyro range was raised to ±2000°/s regardless, and raw
+                    accelerometer angle and gyro rate are now logged separately
+                    so real rotation and sensor saturation can be told apart next
+                    time.
+                </p>
             </div>
 
             <p class="section-label">Lessons Learned / What's Next</p>
             <div class="content-block">
                 <p>
-                    The Monte Carlo sweeps were the clearest lesson so far:
-                    intuition said servo speed would dominate landing
-                    performance, and the data said otherwise. Sweeping
-                    parameters individually before committing engineering
-                    time to any one subsystem is now part of how I'd approach
-                    the next project, not just this one.
+                    The Monte Carlo sweeps were the clearest lesson from the
+                    simulation side: intuition said servo speed would dominate
+                    landing performance, and the data said otherwise. Sweeping
+                    parameters individually before committing engineering time to
+                    any one subsystem is now part of how I'd approach the next
+                    project, not just this one.
                 </p>
                 <p>
-                    Open risks currently being tracked: motor thrust-to-weight
-                    margin (vehicle mass has to stay within a fairly narrow
-                    band for the selected Estes F15-0 motor to provide
-                    adequate liftoff acceleration), a control-loop latency
-                    failure mode inherited as a known risk from the reference
-                    build, and whether the finished vehicle's weight or motor
-                    impulse crosses from model-rocket into
+                    From the static fires: the gimbal has clearly demonstrated
+                    it has enough torque authority — it moved the full airframe
+                    against gravity and against a mechanical stop, twice,
+                    unintentionally. The open problems are precision and
+                    correctness, not power. Fixes needed before the next fire:
+                    invert the control signs, swap <code>write()</code> for
+                    <code>writeMicroseconds()</code> with float math (dropping
+                    ~2.6° steps to roughly 0.2°), verify true nozzle-neutral
+                    against the assumed <code>OUTER_CENTER</code>, and add a
+                    closed-loop sign-verification step to the pre-fire checklist
+                    so this class of bug can't reach a live motor again.
+                </p>
+                <p>
+                    Beyond the control loop: redesign the avionics bay for
+                    accessibility, move to a barometric altimeter for
+                    deployment, build one full CAD assembly with every part in
+                    it before the next fire (rather than iterating on subsystems
+                    in isolation), and reconsider the motor-casing attachment
+                    for consistency and reusability. Open risks still being
+                    tracked: motor thrust-to-weight margin, a control-loop
+                    latency failure mode inherited from the reference build, and
+                    whether the finished vehicle crosses from model-rocket into
                     high-power-rocketry classification, which would trigger
-                    certification requirements. Next up is finishing the
-                    avionics bay and motor container redesigns, closing out
-                    the OpenRocket stability model with real (not
-                    placeholder) part masses, and working toward the
-                    descoped first flight — TVC-controlled ascent with
-                    parachute recovery only — before attempting the full
-                    two-motor propulsive landing sequence on a later flight.
+                    certification requirements.
                 </p>
             </div>
 
@@ -552,6 +871,19 @@
                 margin-bottom: 1.5rem;
             }
 
+            .gallery-3 {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+            .image-figure {
+                max-width: 460px;
+                margin: 0 auto 1.5rem;
+            }
+
+            .image-figure--narrow {
+                max-width: 320px;
+            }
+
             footer {
                 padding-top: 2rem;
                 padding-bottom: 3rem;
@@ -585,6 +917,13 @@
                 }
                 .gallery {
                     grid-template-columns: 1fr;
+                }
+                .gallery-3 {
+                    grid-template-columns: 1fr;
+                }
+                .image-figure,
+                .image-figure--narrow {
+                    max-width: 100%;
                 }
             }
         </style>
