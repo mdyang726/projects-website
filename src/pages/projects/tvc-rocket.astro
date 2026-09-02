@@ -471,9 +471,13 @@
                 </figure>
                 <p>
                     <strong>What the data actually showed:</strong> the log ran
-                    clean — 278 samples, 83 Hz, zero dropouts over 50 ms, thrust
-                    tracking the certified F15-0 curve almost exactly (peak
-                    thrust fraction 0.997). But the pre-ignition attitude read
+                    clean — 278 samples at the 83 Hz burn-window rate, zero
+                    dropouts over 50 ms, thrust tracking the certified F15-0
+                    curve almost exactly (peak thrust fraction 0.997). The loop
+                    runs at 66.7 Hz before ignition and switches to 83.3 Hz when
+                    <code>motorIgnited</code> latches, in both tests — a ~25%
+                    loop-rate change at the exact moment control authority starts
+                    to matter. But the pre-ignition attitude read
                     +78.8° pitch and +109.5° roll, when video confirmed the
                     vehicle was within about 1° of plumb before ignition. That
                     phantom 78° error was enough to clamp the PID output on the
@@ -530,12 +534,14 @@
                     The root cause was a one-line bug: the roll computation used
                     <code>atan2(a.y, a.z)</code>, which assumes Z is the
                     vertical axis. In this build, Y is the longitudinal axis, so
-                    the math was reading the wrong reference entirely. Once
-                    thrust vibration started, the accelerometer-only attitude
-                    estimate broke down further and roll swept the full ±180°
-                    range — the textbook failure mode of trusting an
-                    accelerometer for tilt under vibration, since it only works
-                    if the sensor is reading gravity alone.
+                    with gravity resting on Y the function was handed two
+                    near-zero channels and its output ran noise-dominated across
+                    nearly the full ±180° range — logged roll swept −176.67° to
+                    +176.61° on a bolted-down, motionless vehicle, starting
+                    1.55 s before the motor lit. No thrust or motion was
+                    involved. Several explanations seemed possible at first, but
+                    the axis-convention framing was the right one — and it is the
+                    more serious finding.
                 </p>
                 <p>
                     The key piece of evidence came from frame-by-frame video
@@ -559,6 +565,21 @@
                     −0.10° / roll +6.45° with 0.09° standard deviation over
                     30 s — confirming the sensor fix before spending another
                     motor.
+                </p>
+                <p>
+                    A second, independent bug sat in the same log: ignition
+                    detection ran roughly 1.0 s late. The servos held dead
+                    center for 6,501 consecutive samples and moved only when the
+                    flag latched, so for the first second of the burn the
+                    vehicle was rotating under uncorrected thrust misalignment
+                    while the flight computer had not yet registered that the
+                    motor was lit. The control loop was not failing — it was not
+                    running. Everything keyed to elapsed-time-since-ignition,
+                    including the burn timer and the burnout call, was running on
+                    a clock short by about a quarter of the burn. Timing was
+                    established by aligning the test video's acoustic ignition
+                    onset (8.23 s) against the first commanded gimbal deflection
+                    (9.23 s), both at 30 fps.
                 </p>
             </div>
 
@@ -687,16 +708,18 @@
                     imply correctness on the second.
                 </p>
                 <p>
-                    A secondary finding came out of the deployment logic:
-                    accelerometer dead-reckoning produced −52.5 m/s of apparent
-                    vertical velocity by burnout on a vehicle that never
-                    physically moved, and the velocity-based deployment trigger
-                    fired 0.03 s after the arming delay expired — meaning in an
-                    actual flight this logic would have deployed the parachute at
-                    burnout, at max velocity. <code>DEPLOYMENT_INHIBITED</code>
-                    correctly suppressed the actuation, but the finding ruled out
-                    accelerometer integration as a deployment trigger; a
-                    barometric altimeter is required going forward.
+                    A secondary finding came out of the deployment logic, and it
+                    showed up in both tests: accelerometer dead-reckoning
+                    produced roughly −53 m/s of apparent vertical velocity by
+                    burnout — −52.5 m/s in Test 2, −53.6 m/s in Test 1 — on a
+                    vehicle that never physically moved, and in both runs the
+                    velocity-based deployment trigger fired 0.03 s after the
+                    arming delay expired. In an actual flight this logic would
+                    have deployed the parachute at burnout, at max velocity.
+                    <code>DEPLOYMENT_INHIBITED</code> correctly suppressed the
+                    actuation, but the finding rules out accelerometer
+                    integration as a deployment trigger; a barometric altimeter
+                    is required going forward.
                 </p>
                 <figure class="image-figure image-figure--data">
                     <div class="image-placeholder">
@@ -822,7 +845,7 @@
 
             <footer>
                 <p>Marcus David Yang</p>
-                <a href="https://github.com" target="_blank" rel="noopener">github ↗</a>
+                <a href="https://github.com/mdyang726" target="_blank" rel="noopener">github ↗</a>
             </footer>
         </div>
 
