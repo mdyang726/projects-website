@@ -483,6 +483,49 @@
                     spent 100% of the burn at a ±4° extreme, with only 5–8
                     command changes total across 273 samples).
                 </p>
+                <figure class="image-figure image-figure--data">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/01_test1_full_session.svg"
+                            alt="Line chart of pitch and roll over 95 seconds. Both traces are flat near zero until 2.55 seconds before ignition, when they abruptly diverge, pitch climbing to 80 degrees and roll sweeping across the full plus/minus 180 degree range."
+                            loading="lazy"
+                        />
+                        <p class="caption">
+                            Attitude estimate across the entire Test 1 log. The
+                            estimate holds within 0.12° standard deviation for
+                            95 seconds, then diverges at t = −2.55 s — 2.55 s
+                            before <code>motorIgnited</code> latches, and 1.55 s
+                            before the motor actually lit. Frame-by-frame
+                            tracking of the test video puts the airframe
+                            motionless to within about half a degree across that
+                            whole window, while the estimate read 79° in pitch
+                            and swept roll across nearly the full ±180°
+                            <code>atan2</code> output range. Attitude shown is
+                            the complementary-filter output, not raw
+                            accelerometer angle.
+                        </p>
+                    </div>
+                </figure>
+                <figure class="image-figure image-figure--data">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/02_test1_attitude_and_servo.svg"
+                            alt="Two stacked charts sharing a time axis. The upper shows pitch and roll diverging through the burn. The lower shows both servo commands as flat steps pinned at their extreme values, almost never changing."
+                            loading="lazy"
+                        />
+                        <p class="caption">
+                            Burn-window detail. Both servo channels sat at a
+                            travel limit for 100% of the burn — the inner axis
+                            used 2 of its 9 addressable positions, the outer 2
+                            of 9, with 4 and 7 command changes across 274
+                            samples. Grey lines mark the 9 integer positions
+                            <code>write()</code> can address. These are
+                            commanded positions; there is no position feedback
+                            in the system, so the log cannot confirm the servo
+                            reached the angle.
+                        </p>
+                    </div>
+                </figure>
                 <p>
                     The root cause was a one-line bug: the roll computation used
                     <code>atan2(a.y, a.z)</code>, which assumes Z is the
@@ -544,6 +587,24 @@
                     diverged immediately and monotonically, reaching −307° in
                     pitch within 2.5 s.
                 </p>
+                <figure class="image-figure image-figure--data">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/03_test2_baseline_and_divergence.svg"
+                            alt="Line chart showing pitch and roll flat and quiet for 50 seconds before ignition, then pitch dropping steeply and continuously to negative 307 degrees within two and a half seconds."
+                            loading="lazy"
+                        />
+                        <p class="caption">
+                            Test 2 held a clean pre-ignition baseline — pitch
+                            −1.75° (σ 0.14), roll −8.92° (σ 0.21) over the three
+                            seconds before ignition, body rates under 0.4°/s. At
+                            ignition the vehicle diverged immediately and
+                            monotonically, reaching −307° in pitch by
+                            t = 2.52 s. Pitch here is unbounded gyro
+                            integration, not a wrapped orientation reading.
+                        </p>
+                    </div>
+                </figure>
                 <figure class="image-figure image-figure--narrow">
                     <div class="image-placeholder">
                         <img
@@ -571,6 +632,51 @@
                     acceleration, −567°/s², was the same order of magnitude as
                     the ≈330°/s² measured optically in Test 1.
                 </p>
+                <figure class="image-figure image-figure--data">
+                    <p class="figure-flag">Key evidence — inverted control sign</p>
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/05_test2_saturation_vs_divergence.svg"
+                            alt="Two stacked charts. The upper shows the inner servo command flat at its minimum for nearly the whole window. The lower shows pitch falling smoothly and continuously from near zero to negative 195 degrees over the same window."
+                            loading="lazy"
+                        />
+                        <p class="caption">
+                            The clearest evidence for the inverted control sign.
+                            Over the first 0.9 s after ignition the inner servo
+                            was held at its −4° rail for 70 of 71 samples — the
+                            maximum correction available to the controller —
+                            while pitch ran monotonically from −3.25° to
+                            −195.4°, passing −45° at 0.35 s, −90° at 0.51 s and
+                            −180° at 0.80 s. A correctly-signed loop saturating
+                            at a rail drives error toward zero. This one grew
+                            error the entire time.
+                        </p>
+                    </div>
+                </figure>
+                <p class="figure-note">
+                    A command-versus-response correlation was considered and
+                    rejected as a method here. In a closed loop the controller
+                    responds to error and the plant responds to command, so
+                    anticorrelation between the two appears whether or not the
+                    sign is inverted. The saturation-with-growing-error argument
+                    does not have that problem.
+                </p>
+                <figure class="image-figure image-figure--data">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/04_test2_attitude_and_servo.svg"
+                            alt="Two stacked charts. The upper shows pitch falling steeply through the burn. The lower shows servo commands stepping between discrete integer levels but spending nearly all the time at the extremes."
+                            loading="lazy"
+                        />
+                        <p class="caption">
+                            Burn-window detail for Test 2. The inner channel
+                            spent 98.9% and the outer 96.4% of the burn at a
+                            travel limit, using 5 and 7 of the 9 available
+                            positions. The saturation signature is nearly
+                            identical to Test 1 despite an unrelated root cause.
+                        </p>
+                    </div>
+                </figure>
                 <p>
                     The reason bench testing didn't catch this: earlier
                     servo-direction checks confirmed which way each
@@ -592,6 +698,28 @@
                     accelerometer integration as a deployment trigger; a
                     barometric altimeter is required going forward.
                 </p>
+                <figure class="image-figure image-figure--data">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/08_deadreckoned_velocity.svg"
+                            alt="Line chart of dead-reckoned vertical velocity for both tests, each falling steadily to about negative 53 metres per second by burnout, with markers showing where the deployment trigger fired."
+                            loading="lazy"
+                        />
+                        <p class="caption">
+                            Accelerometer integration produced roughly −53 m/s
+                            of apparent vertical velocity by burnout in both
+                            tests, on a vehicle bolted to a stand that never
+                            physically moved. The velocity-based deployment
+                            trigger fired 0.03 s after the arming delay expired
+                            in both runs — in flight this logic would have
+                            deployed the parachute at burnout, at maximum
+                            velocity. <code>DEPLOYMENT_INHIBITED</code> correctly
+                            suppressed actuation, but the finding rules out
+                            accelerometer integration as a deployment trigger. A
+                            barometric altimeter is required.
+                        </p>
+                    </div>
+                </figure>
                 <p>
                     There's also a resolution problem sitting underneath the sign
                     bug: the gimbal linkage has a measured 2.3× servo-to-gimbal
@@ -608,6 +736,25 @@
                     working against a resolution and range problem it can't
                     escape.
                 </p>
+                <figure class="image-figure image-figure--data">
+                    <div class="image-placeholder">
+                        <img
+                            src="/images/tvc-rocket/06_quantizer_usage.svg"
+                            alt="Two horizontal bar charts side by side, one per test, showing the percentage of burn samples spent at each commanded servo position. Nearly all bars cluster at the extreme positions with almost nothing in between."
+                            loading="lazy"
+                        />
+                        <p class="caption">
+                            Distribution of commanded servo positions during
+                            each burn. The 2.3× servo-to-gimbal linkage ratio
+                            combined with <code>write()</code>'s integer-degree
+                            argument collapses the ±10° gimbal range onto 9
+                            addressable positions roughly 2.6° apart — coarser
+                            than the attitude error the controller is trying to
+                            null. Neither test used more than a fraction of
+                            them; both lived at the rails.
+                        </p>
+                    </div>
+                </figure>
                 <figure class="image-figure image-figure--narrow">
                     <div class="image-placeholder">
                         <img
@@ -882,6 +1029,29 @@
 
             .image-figure--narrow {
                 max-width: 320px;
+            }
+
+            .image-figure--data {
+                max-width: 100%;
+            }
+
+            .figure-flag {
+                font-family: "DM Mono", monospace;
+                font-size: 11px;
+                color: #b4b2a9;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                margin-bottom: 0.75rem;
+            }
+
+            .figure-note {
+                font-size: 13px;
+                color: #7a7974;
+                line-height: 1.7;
+                max-width: 560px;
+                border-left: 2px solid #d3d1c7;
+                padding-left: 1rem;
+                margin: -0.5rem 0 1.5rem;
             }
 
             footer {
