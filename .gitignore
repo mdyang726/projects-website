@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# raw project source material (photos/video/zip kept locally, not in the site)
+/TVC Project Description/
+/TVC Project Description.zip
