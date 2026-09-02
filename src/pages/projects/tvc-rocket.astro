@@ -200,7 +200,12 @@
                     the PID controller.
                 </p>
                 <div class="image-placeholder video-placeholder">
-                    <video src="/images/tvc-rocket/IMG_2494.mp4" controls></video>
+                    <video
+                        src="/images/tvc-rocket/IMG_2494.mp4"
+                        controls
+                        playsinline
+                        preload="metadata"
+                    ></video>
                     <p class="caption">Manual gimbal actuation, bench test.</p>
                 </div>
                 <figure class="image-figure" style="margin-top:1.5rem;">
@@ -320,6 +325,20 @@
                         <p class="caption">Held together with a rubber band for ground testing, ahead of final fastening.</p>
                     </div>
                 </div>
+            </div>
+
+            <p class="section-label">Static Fire Campaign</p>
+            <div class="content-block">
+                <p>
+                    Two static fires in summer 2026, both restrained full-burns
+                    of an Estes F15-0 on a 2-DOF stand, and both ended with the
+                    airframe driven into the stand's mechanical stop. Each run
+                    failed for a different reason — a sensor-frame bug in Test 1,
+                    an inverted control sign in Test 2 — and each was diagnosed
+                    from the flight-computer telemetry rather than the video. The
+                    two sections below work through the logs; a side-by-side
+                    comparison follows.
+                </p>
             </div>
 
             <p class="section-label">Static Fire Test 1</p>
@@ -697,6 +716,53 @@
                 </p>
             </div>
 
+            <p class="section-label">Test 1 vs Test 2</p>
+            <div class="content-block">
+                <div class="table-scroll">
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Static Fire 1</th>
+                                <th scope="col">Static Fire 2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th scope="row">Pre-ignition attitude</th>
+                                <td>Read +78.8° pitch / +109.5° roll while the airframe stood within ~1° of plumb — a phantom error</td>
+                                <td>Pitch −1.75° (σ 0.14°), roll −8.92° (σ 0.21°) — a true, quiet baseline</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Root cause</th>
+                                <td><code>atan2</code> roll computed about the wrong body axis (Z assumed vertical, Y actual); ignition also detected ~1 s late</td>
+                                <td>Control sign inverted on both gimbal axes — every correction became positive feedback</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Time to servo saturation</th>
+                                <td>First control sample — PID clamped on sample 1</td>
+                                <td>~2 loop iterations after ignition</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Burn spent at a travel limit</th>
+                                <td>100% / 100% (inner / outer)</td>
+                                <td>98.9% / 96.4% (inner / outer)</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Peak angular acceleration</th>
+                                <td>≈ 330°/s² (measured optically from video)</td>
+                                <td>−567°/s² (from gyro)</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Closed loop on vehicle response?</th>
+                                <td>No — open-loop for the first ~1 s, then chasing a false reference</td>
+                                <td>Yes — first log recording vehicle response to a known command</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <p class="section-label">Lessons Learned / What's Next</p>
             <div class="content-block">
                 <p>
@@ -1020,6 +1086,57 @@
                 border-left: 2px solid #d3d1c7;
                 padding-left: 1rem;
                 margin: -0.5rem 0 1.5rem;
+            }
+
+            .table-scroll {
+                overflow-x: auto;
+                margin-bottom: 1.5rem;
+            }
+
+            .compare-table {
+                border-collapse: collapse;
+                width: 100%;
+                min-width: 520px;
+                font-size: 13px;
+                color: #5f5e5a;
+                line-height: 1.6;
+            }
+
+            .compare-table th,
+            .compare-table td {
+                text-align: left;
+                vertical-align: top;
+                padding: 12px 14px 12px 0;
+                border-bottom: 1px solid #ece9e2;
+            }
+
+            .compare-table thead th {
+                font-family: "DM Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #b4b2a9;
+                border-bottom: 1px solid #e0dfd8;
+            }
+
+            .compare-table tbody th {
+                font-family: "DM Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: #1a1a18;
+                font-weight: 500;
+                width: 24%;
+                padding-right: 18px;
+            }
+
+            .compare-table tbody td {
+                width: 38%;
+            }
+
+            .compare-table tr:last-child th,
+            .compare-table tr:last-child td {
+                border-bottom: none;
             }
 
             footer {
