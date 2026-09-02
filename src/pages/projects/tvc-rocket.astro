@@ -38,7 +38,14 @@
                     concept, built at hobbyist scale from COTS and
                     3D-printed parts. A Teensy 4.1 flight computer drives a
                     two-axis gimbaled motor mount through a PID loop reading
-                    attitude from an onboard IMU.
+                    attitude from an onboard IMU. The first flight is
+                    scoped down to TVC-controlled ascent under parachute
+                    recovery; the two-motor propulsive-landing stack and
+                    legs come on a later flight, once ascent control is
+                    proven on real flight data.
+                </p>
+                <p class="hero-timeline">
+                    Built over one summer, sophomore year of college.
                 </p>
                 <div class="skill-tags">
                     <span class="skill-tag">Python</span>
@@ -50,6 +57,20 @@
                     <span class="skill-tag">OpenRocket</span>
                 </div>
             </section>
+
+            <p class="section-label">Vehicle at a Glance</p>
+            <dl class="spec-block">
+                <div><dt>Airframe diameter</dt><dd>4 in (~102 mm), commercial tube</dd></div>
+                <div><dt>Dry mass</dt><dd>pending final weigh-in</dd></div>
+                <div><dt>Motor</dt><dd>Estes F15-0 (composite-class black-powder)</dd></div>
+                <div><dt>Gimbal range</dt><dd>±10° in two axes</dd></div>
+                <div><dt>Servo-to-gimbal ratio</dt><dd>2.3× (measured)</dd></div>
+                <div><dt>Servos</dt><dd>MG90S ×2</dd></div>
+                <div><dt>IMU</dt><dd>InvenSense MPU-6050</dd></div>
+                <div><dt>Flight computer</dt><dd>Teensy 4.1</dd></div>
+                <div><dt>Logging rate</dt><dd>83 Hz during burn</dd></div>
+                <div><dt>Control-loop rate</dt><dd>66.7 Hz pre-ignition, 83.3 Hz during burn</dd></div>
+            </dl>
 
             <p class="section-label">Problem / Goal</p>
             <div class="content-block">
@@ -173,11 +194,8 @@
                     needed.
                 </p>
                 <p>
-                    <strong>Scope discipline.</strong> The first flight is
-                    deliberately scoped down to TVC-controlled ascent with
-                    parachute recovery only, deferring the two-motor
-                    propulsive landing stack and legs to a later flight once
-                    ascent control is proven on real flight data. That
+                    <strong>Scope discipline.</strong> Deferring the
+                    propulsive landing stack to a later flight (see above)
                     follows from a testing philosophy of treating every
                     flight as a data-collection event rather than a
                     pass/fail attempt, and maximizing what can be validated
@@ -960,6 +978,14 @@
                 margin-bottom: 1.5rem;
             }
 
+            .hero-timeline {
+                font-family: "DM Mono", monospace;
+                font-size: 12px;
+                color: #888780;
+                letter-spacing: 0.02em;
+                margin-bottom: 1.5rem;
+            }
+
             .skill-tags {
                 display: flex;
                 flex-wrap: wrap;
@@ -986,6 +1012,51 @@
 
             .content-block {
                 margin-bottom: 4rem;
+            }
+
+            .spec-block {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0;
+                margin-bottom: 4rem;
+                border-top: 1px solid #e0dfd8;
+                border-bottom: 1px solid #e0dfd8;
+            }
+
+            .spec-block > div {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                padding: 14px 0;
+                border-bottom: 1px solid #ece9e2;
+            }
+
+            .spec-block > div:last-child,
+            .spec-block > div:nth-last-child(2):nth-child(odd) {
+                border-bottom: none;
+            }
+
+            .spec-block dt {
+                font-family: "DM Mono", monospace;
+                font-size: 10px;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #b4b2a9;
+            }
+
+            .spec-block dd {
+                font-size: 14px;
+                color: #1a1a18;
+                margin: 0;
+            }
+
+            @media (max-width: 640px) {
+                .spec-block {
+                    grid-template-columns: 1fr;
+                }
+                .spec-block > div:nth-last-child(2):nth-child(odd) {
+                    border-bottom: 1px solid #ece9e2;
+                }
             }
 
             .content-block p {
