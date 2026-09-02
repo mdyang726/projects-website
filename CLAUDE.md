@@ -19,7 +19,7 @@ from `main` (repo: mdyang726/projects-website).
 - `src/pages/index.astro`            — home: hero, project cards, about
 - `src/pages/projects/*.astro`       — one self-contained file per project
 - `public/images/<project-slug>/`    — page assets, referenced as `/images/...`
-- `context/*.md`                     — source notes for page copy; NOT built
+- `context/*.md`                     — source notes for page copy + design guidelines; NOT built
 - `src/layouts/`, `src/components/`  — UNUSED Astro starter scaffolding
 
 Each page currently owns its full `<html>`/`<head>`/`<style>`. There is no
@@ -33,6 +33,10 @@ Layout:  #wrapper max-width 860px, 80px side padding (24px below 640px)
 Fonts:   DM Serif Display (headings), DM Mono (labels/tags), DM Sans (body)
 Blocks:  nav · hero · section-label · content-block · gallery · image-figure
 Keep new pages consistent by copying an existing project page.
+
+See `context/web-design-guidelines.md` for the broader craft checklist
+(typography, spacing, contrast/a11y, responsive, performance) and a pre-ship
+list. Those are general best practices; the tokens above still win on overlap.
 
 ## Conventions
 - Match the surrounding file's indentation and quote style (it varies per file).
