@@ -101,126 +101,42 @@
                 </p>
             </div>
 
-            <p class="section-label">Approach &amp; Key Decisions</p>
+            <p class="section-label">Simulation</p>
             <div class="content-block">
                 <p>
-                    <strong>Simulation, built in layers.</strong> Before any
-                    hardware design, I modeled descent physics (gravity,
-                    drag, IMU double-integration for altitude) to answer one
-                    question: after the flight computer detects the ignition
-                    altitude, is there enough time before ground impact to
-                    fire the landing motor and get meaningful thrust out of
-                    it? That meant building a full latency budget — sensor
-                    loop cycle, MOSFET switching time, e-match ignition
-                    delay, motor spool-up time — and subtracting it from the
-                    physical time-to-impact. That budget turned out to be the
-                    single constraint the rest of the vehicle design has to
-                    satisfy, and it set starting values for apogee altitude
-                    and detection altitude before any CAD existed.
+                    Before committing to hardware, I ran a simulation to
+                    establish that the core concept was physically achievable —
+                    that a flight computer could detect apogee, compute a
+                    landing-burn ignition point, and fire in time. I built the
+                    simulation with Claude's help, supplying the digitized F15
+                    motor thrust curve, rough CP/CG estimates, and notes on how
+                    mass and inertia change as propellant burns.
                 </p>
                 <p>
-                    From there, a control law: sweeping possible apogee
-                    altitudes and solving for the minimum safe ignition
-                    altitude at each one produces a linear fit,
-                    h_b = m·Ap + c, that runs as firmware — every flight
-                    measures its own apogee and computes its own ignition
-                    altitude, rather than flying to a fixed number. A full 2D
-                    pitch-plane flight sim (<code>tvc_sim.py</code>) then
-                    modeled the digitized F15 motor thrust curve, time-varying
-                    mass/CG/inertia as propellant burns and motors eject,
-                    finless aerodynamics, and gimbaled-thrust dynamics
-                    through the full ascent → coast → descent → landing-burn
-                    → touchdown sequence, running the same
-                    PID-with-thrust-feed-forward controller that's meant to
-                    fly onboard.
+                    From that, a control law: sweeping possible apogee
+                    altitudes and solving for the minimum safe ignition altitude
+                    at each one produces a linear fit (h<sub>b</sub> = m·Ap + c)
+                    that runs as firmware — every flight measures its own apogee
+                    and computes its own ignition altitude rather than flying to
+                    a fixed number.
                 </p>
                 <p>
-                    A stochastic layer on top
-                    (<code>tvc_sim_stochastic.py</code>,
-                    <code>tvc_sim_sweeps.py</code>) added IMU
-                    accelerometer/gyro noise and bias, a strapdown
-                    attitude/altitude estimator running at realistic sensor
-                    rates (1 kHz IMU, 100 Hz control loop, optional
-                    barometer fusion), servo dynamics, crosswind and gusts,
-                    and motor-to-motor impulse scatter — turning hundreds of
-                    randomized flights into a distribution of touchdown
-                    velocities instead of one idealized answer. Parameter
-                    sweeps showed touchdown velocity is far more sensitive to
-                    IMU accelerometer bias than to servo speed, which
-                    redirected effort toward sensor calibration over faster
-                    servos.
+                    A stochastic layer then ran the simulation hundreds of times
+                    with randomized variation added each run — IMU sensor noise,
+                    motor burn scatter, crosswind gusts — to see how sensitive
+                    landing performance is to each individual variable. Those
+                    parameter sweeps showed landing velocity is far more
+                    sensitive to IMU accelerometer bias than to servo speed,
+                    which shifted engineering focus toward sensor calibration
+                    over faster actuators.
                 </p>
                 <p>
-                    <strong>Design trade-offs.</strong> An early
-                    multi-perspective design review (five independent
-                    analyses plus cross-review, synthesized into one brief)
-                    set the core architecture: shared gimbal and PID/TVC code
-                    for both ascent and landing burns, a low center of
-                    gravity for passive self-righting during unpowered
-                    descent, a dynamic (not fixed) ignition-altitude law,
-                    legs sized for off-nominal landing velocities rather than
-                    just the nominal case, and a five-state flight software
-                    model (boost → coast → descent → ignition → landing). A
-                    4" commercial airframe and nose cone were chosen
-                    specifically to avoid needing CFD — known, published
-                    aerodynamics. Because the vehicle is finless and relies
-                    on active TVC, the traditional "positive stability
-                    margin" goal doesn't apply the way it would to a normal
-                    model rocket; the real requirement is a torque budget
-                    where gimbal-deflected thrust can out-torque the
-                    aerodynamic destabilizing moment through the burn.
-                    CG/CP modeling is being done in OpenRocket, with the
-                    first pass run using placeholder masses pending final
-                    hardware weigh-in.
-                </p>
-                <p>
-                    A launch-off-the-legs plan was dropped once the low-CG
-                    design was confirmed passively unstable during
-                    ascent — the same property that helps it self-right on
-                    descent works against it going up — in favor of a
-                    lug/rail launcher, sized after determining the rocket's
-                    mass and hardware likely put it past the point where a
-                    thin launch rod would be adequate ("rod whip" risk).
-                    Recovery iterated toward a servo-actuated nose-cone
-                    separation: a servo retracts a hook/pin, a compression
-                    spring provides positive separation, and the nose cone
-                    stays tethered by a Kevlar shock cord through a
-                    ball-bearing swivel (to prevent parachute twist) with the
-                    chute packed in-line. Motor staging reuses a friction-fit,
-                    e-match-sandwiched coupling from the reference build: the
-                    ascent motor's own thrust holds it against the landing
-                    motor during boost, and the landing motor's ignition
-                    ejects the spent casing — no separate mechanical release
-                    needed.
-                </p>
-                <p>
-                    <strong>Scope discipline.</strong> Deferring the
-                    propulsive landing stack to a later flight (see above)
-                    follows from a testing philosophy of treating every
-                    flight as a data-collection event rather than a
-                    pass/fail attempt, and maximizing what can be validated
-                    on the bench — static fires, hardware-in-the-loop
-                    state-machine testing, drop tests for leg deployment —
-                    before committing to a full-system flight.
-                </p>
-            </div>
-
-            <p class="section-label">Simulation Results</p>
-            <div class="content-block">
-                <p>
-                    The Monte Carlo sweeps established that touchdown velocity
-                    is dominated by IMU accelerometer bias rather than servo
-                    response speed — a concrete result that changed where
-                    engineering effort is going (sensor calibration and fusion,
-                    not faster actuators).
-                </p>
-                <p>
-                    CAD outputs feed directly back into simulation: measured and
-                    estimated part masses and dimensions are tracked in a
-                    parts-reference table used to build the OpenRocket
-                    aerodynamic/stability model. The gimbal, avionics bay, and
-                    nose cone designs are all captured below in the build stage
-                    walkthroughs.
+                    The simulation was enough proof of concept to start building.
+                    Partway through hardware design I pivoted the recovery
+                    approach — TVC-controlled ascent with a parachute landing
+                    rather than a full propulsive landing — to keep the timeline
+                    realistic. The gimbal, flight computer, and control loop
+                    stayed the focus.
                 </p>
             </div>
 
@@ -363,7 +279,11 @@
                     somewhere that made sense for both CG placement and chute
                     deployment, which meant either redoing the CG/CP
                     calculations or redesigning around a different attachment
-                    scheme.
+                    scheme. This also exposed a broader issue: there's no
+                    consistent method yet for inserting and securing components
+                    inside the body tube, which raises open questions about
+                    fastener choice and how repeatable the assembly is across
+                    builds.
                 </p>
                 <p>
                     The nose cone ended up servo-powered, splitting into three
@@ -407,10 +327,10 @@
                 <p>
                     <strong>Setup:</strong> restrained 2-DOF gimbal test stand,
                     pivot at approximately vehicle CG, sized to hold the F15-0's
-                    thrust. A custom low-resistance test-stand gimbal — separate
-                    from the flight TVC unit — clamps a 4" body tube on the
-                    inner structure and bolts to a shelving frame on the outer
-                    structure, modeled through a Python script imported into NX.
+                    thrust. A custom test-stand gimbal — separate from the
+                    flight TVC unit — clamps a 4" body tube on the inner
+                    structure and bolts to a shelving frame on the outer
+                    structure, designed manually.
                 </p>
                 <figure class="image-figure">
                     <div class="image-placeholder">
